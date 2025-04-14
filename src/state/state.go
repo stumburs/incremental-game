@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"incremental-game/src/db"
 	"incremental-game/src/theme"
+	"math"
 	"reflect"
 	"time"
 
@@ -95,9 +96,8 @@ func (state *State) UpdateTextFromDB(db *db.Database) {
 
 }
 
+// TODO: Refactor this god-awful way of upgrading
 func (state *State) PurchaseUpgrade(db *db.Database, fieldName string) {
-	fmt.Println("TODO: Purchase", fieldName)
-
 	v := reflect.ValueOf(db.UpgradePaths)
 
 	field := v.FieldByName(fieldName)
@@ -111,9 +111,36 @@ func (state *State) PurchaseUpgrade(db *db.Database, fieldName string) {
 	fullPath := db.Paths.Upgrades + path
 
 	upgrade, _ := db.FetchUpgrade(fullPath)
+	state.UpdateFromDB(db)
 
-	fmt.Printf("%+v\n", upgrade)
+	switch field.String() {
+	case db.UpgradePaths.ClickPower:
+		state.PurchaseClickPower(db, upgrade)
+	case db.UpgradePaths.DecreaseDelay:
+		state.PurchaseDecreaseDelay(db, upgrade)
+	}
+
+	// Refresh state + UI
+	state.UpdateFromDB(db)
 }
 
-func (state *State) PurchaseClickPower() {
+func (state *State) PurchaseClickPower(db *db.Database, upgrade *db.Upgrade) {
+	if state.Count < upgrade.Cost {
+		fmt.Println("Not enough CP to purchase ClickPower")
+		fmt.Printf("Local state: %d Remote state: %d\n", state.Count, db.GetValue(db.Paths.Count))
+		return
+	}
+
+	// Remove CP
+	db.DecrementValueBy(db.Paths.Count, upgrade.Cost)
+
+	// Increase Cost
+	db.IncrementValueBy(db.Paths.Upgrades+db.UpgradePaths.ClickPower+db.UpgradeSubpaths.Cost, int(math.Floor(float64(upgrade.Cost)*1.5)))
+
+	// Increase Level
+	db.IncrementValueBy(db.Paths.Upgrades+db.UpgradePaths.ClickPower+db.UpgradeSubpaths.Level, 1)
+}
+
+func (state *State) PurchaseDecreaseDelay(db *db.Database, upgrade *db.Upgrade) {
+	fmt.Println("TODO: PurchaseDecreaseDelay()")
 }

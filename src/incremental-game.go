@@ -34,7 +34,9 @@ func buildAllUpgradeCards(db *db.Database, basePath string, state state.State) [
 		}
 
 		card := components.CreateUpgradeCard(upgrade, func() {
-			state.PurchaseUpgrade(db, fieldName)
+			go func() {
+				state.PurchaseUpgrade(db, fieldName)
+			}()
 		})
 
 		cards = append(cards, card)
@@ -47,19 +49,17 @@ func buildAllUpgradeCards(db *db.Database, basePath string, state state.State) [
 // TODO: Refactor this probably
 var updateChan = make(chan []fyne.CanvasObject)
 
-func StartUpgradeCardRefresher(db *db.Database, state state.State) {
-	go func() {
-		for {
-			time.Sleep(5 * time.Second)
-			newCards := buildAllUpgradeCards(db, db.Paths.Upgrades, state)
-			updateChan <- newCards
-		}
-	}()
+func RefreshUpgradeCards(db *db.Database, state state.State) {
+	newCards := buildAllUpgradeCards(db, db.Paths.Upgrades, state)
+	updateChan <- newCards
 }
 
 func main() {
 
 	db := db.NewDatabase()
+
+	db.SetValue(db.Paths.Upgrades+db.UpgradePaths.ClickPower+db.UpgradeSubpaths.Level, 1)
+	db.SetValue(db.Paths.Upgrades+db.UpgradePaths.ClickPower+db.UpgradeSubpaths.Cost, 5)
 
 	a := app.New()
 	a.Settings().SetTheme(&theme.CustomTheme{})
@@ -111,7 +111,12 @@ func main() {
 	w.SetContent(verticalSplit)
 
 	// Continuously update upgrade buttons every 5 seconds (time set in StartUpgradeCardRefresher using channel)
-	StartUpgradeCardRefresher(&db, *state)
+	go func() {
+		for {
+			RefreshUpgradeCards(&db, *state)
+			time.Sleep(2 * time.Second)
+		}
+	}()
 	go func() {
 		for newCards := range updateChan {
 			buttonGrid.Objects = newCards
@@ -123,9 +128,11 @@ func main() {
 	go func() {
 		for {
 			state.UpdateFromDB(&db)
-			time.Sleep(5 * time.Second)
+			time.Sleep(2 * time.Second)
 		}
 	}()
+
+	fmt.Println(state.Count)
 
 	w.ShowAndRun()
 }

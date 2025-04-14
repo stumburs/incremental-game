@@ -122,6 +122,15 @@ func (db *Database) IncrementValueBy(path string, incrementBy int) error {
 	return db.SetValue(path, newValue)
 }
 
+func (db *Database) DecrementValueBy(path string, decrementBy int) error {
+
+	currentValue := db.GetValue(path)
+
+	newValue := currentValue - decrementBy
+
+	return db.SetValue(path, newValue)
+}
+
 func (db *Database) SetValue(path string, value int) error {
 	// Increment count
 	newCountJSON, err := json.Marshal(value)
