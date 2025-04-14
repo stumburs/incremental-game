@@ -6,6 +6,8 @@ linux:
 	go build -ldflags="-s -w" src/incremental-game.go
 	strip incremental-game
 	upx incremental-game
+	
+# For cross-compiling from linux->windows
 windows:
 	env CGO_ENABLED=1 GOOS=windows CC=x86_64-w64-mingw32-gcc go build -ldflags="-s -w" src/incremental-game.go
 	strip incremental-game.exe
