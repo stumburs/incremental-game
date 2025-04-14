@@ -31,4 +31,4 @@ win-discord-env: windows
 	7z -mx9 -v10m a incremental-game_$(VERSION)_windows_amd64.7z incremental-game.exe .env
 
 clean:
-	rm incremental-game incremental-game.exe incremental-game_$(VERSION)_linux_amd64.tar.gz incremental-game_$(VERSION)_windows_amd64.tar.gz incremental-game_$(VERSION)_linux_amd64.7z incremental-game_$(VERSION)_windows_amd64.7z
+	rm incremental-game*
