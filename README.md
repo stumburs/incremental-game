@@ -7,16 +7,8 @@ This is a simple COOP incremental game about programming. It uses Firebase's rea
 To build the game you need Go 1.24.1.
 
 ```sh
-make linux
+go build src/incremental-game.go
 ```
-
-or
-
-```sh
-make windows
-```
-
-depending on your OS.
 
 ### Database
 
