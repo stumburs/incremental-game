@@ -1,5 +1,7 @@
 # Temporary solution that will most likely stay permanent
 
+VERSION=1.0.0
+
 linux:
 	go build -ldflags="-s -w" src/incremental-game.go
 	strip incremental-game
@@ -25,7 +27,7 @@ archive-env: all
 	7z a -mx9 incremental-game_$(VERSION)_windows_amd64.7z incremental-game.exe .env
 
 # create a 7z archive for windows split into 10mb parts (for sending through discord)
-win-discord-env: all
+win-discord-env: windows
 	7z -mx9 -v10m a incremental-game_$(VERSION)_windows_amd64.7z incremental-game.exe .env
 
 clean:
