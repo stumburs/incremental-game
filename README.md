@@ -25,3 +25,7 @@ DatabaseURL = "YOUR DATABASE URL"
 
 Just click the "Compile" button to compile some code and get "Compile Points" which you can use to buy upgrades.
 ![Screenshot from 2025-04-15 00-47-29](https://github.com/user-attachments/assets/d543f9b9-2610-4517-aa88-108e3eb5b38a)
+
+## Issues
+
+At the moment it's not very well designed. There are potential data race issues with the database, the UI tends to update at "random" times, the more features I implement, the worse this problem becomes.
